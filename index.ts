@@ -63,6 +63,11 @@ const branchCmd = async (args: string[]) => {
   }
 }
 
+const pushCmd = async(args: string[]) => {
+  const { stdout: branchName } = await exec('git branch --show-current');
+  await spawn(['push', 'origin', branchName]);
+}
+
 const cmdSwitch = (args: string[]) => {
   const command = args.shift()
 
@@ -75,6 +80,9 @@ const cmdSwitch = (args: string[]) => {
       break;
     case 'branch':
       branchCmd(args);
+      break;
+    case 'push':
+      pushCmd(args);
       break;
   }
 };
