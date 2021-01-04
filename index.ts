@@ -1,17 +1,17 @@
 const minimist = require('minimist');
 const util = require('util');
-const {exec: execute, spawnSync} = require('child_process');
+const { exec: execute, spawnSync } = require('child_process');
 const exec = util.promisify(execute);
 const echo = console.log;
 
-type Args = string[];
 interface Options {
   [key: string]: any;
 }
 
-const spawn = (cmdArgs: Args) => spawnSync('git', cmdArgs, { stdio: 'inherit' })
+const spawn = (cmdArgs: string[]) => spawnSync('git', cmdArgs, { stdio: 'inherit' });
+const verifyBranch = (branchName: string, remoteCheck?: boolean) => exec(`git rev-parse --verify ${remoteCheck ? 'origin/' : ''}${branchName}`);
 
-const masterCmd = async (args: Args, forceOptions?: Options) => {
+const masterCmd = async (args: string[], forceOptions?: Options) => {
   const isCheckout = args.includes('checkout')
   const isPull = args.includes('pull');
 
@@ -24,15 +24,46 @@ const masterCmd = async (args: Args, forceOptions?: Options) => {
   }
 }
 
-const checkoutCmd = (args: Args, forceOptions?: Options) => {
+const checkoutCmd = async (args: string[]) => {
+  const [branchName] = args.filter(arg => arg !== 'remote')
 
+  if (!branchName) {
+    echo('Enter branch name')
+    return
+  }
+
+  try {
+    const { stdout: localBranchID } = await verifyBranch(branchName);
+    localBranchID && await spawn(['checkout', branchName]);
+  } catch {
+    try {
+      const { stdout: remoteBranchID } = await verifyBranch(branchName, true);
+      remoteBranchID && await spawn(['checkout', '-t', `origin/${branchName}`]);
+    } catch {
+      await spawn(['checkout', '-b', branchName]);
+    }
+  }
 }
 
-const branchCmd = (args: Args, forceOptions?: Options) => {
+const branchCmd = async (args: string[]) => {
+  if (!args.length) {
+    await spawn(['branch']);
+  }
 
+  const isDelete = args.includes('delete');
+  if (isDelete) {
+    const [branchName] = args.filter(arg => arg !== 'delete' && arg !== 'remote')
+    await spawn(['branch', '-D', branchName])
+    return
+  }
+
+  const isRemote = args.includes('remote')
+  if (isRemote) {
+    await spawn(['branch', '-r'])
+  }
 }
 
-const cmdSwitch = (args: Args) => {
+const cmdSwitch = (args: string[]) => {
   const command = args.shift()
 
   switch (command) {
@@ -49,7 +80,7 @@ const cmdSwitch = (args: Args) => {
 };
 
 const main = async () => {
-  const {_: args}: { _: Args } = minimist(process.argv.slice(2));
+  const { _: args }: { _: string[] } = minimist(process.argv.slice(2));
   await cmdSwitch(args);
 };
 
