@@ -65,7 +65,7 @@ const branchCmd = async (args: string[]) => {
 
 const pushCmd = async(args: string[]) => {
   const { stdout: branchName } = await exec('git branch --show-current');
-  await spawn(['push', 'origin', branchName]);
+  await spawn(['push', 'origin', branchName.replace(/\n/gi, '').trim()]);
 }
 
 const cmdSwitch = (args: string[]) => {
