@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "noImplicitReturns": false,
+    "target": "es5",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "strictPropertyInitialization": false,
+    "strictNullChecks": false,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "noImplicitAny": false,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "types": [
+      "node"
+    ],
+    "lib": [
+      "esnext"
+    ],
+  },
+  "exclude": [
+    "node_modules",
+  ],
+}

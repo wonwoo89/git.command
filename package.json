@@ -2,10 +2,7 @@
   "name": "git.command",
   "version": "1.0.0",
   "description": "git command alias",
-  "main": "index.ts",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "main": "src/index.ts",
   "author": "wonwoo",
   "license": "ISC",
   "dependencies": {
