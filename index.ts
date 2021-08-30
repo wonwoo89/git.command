@@ -63,9 +63,19 @@ const branchCmd = async (args: string[]) => {
   }
 }
 
+const getBranchName = async () => {
+  const { stdout } = await exec('git branch --show-current');
+  return stdout.replace(/\n/gi, '').trim();
+}
+
 const pushCmd = async(args: string[]) => {
-  const { stdout: branchName } = await exec('git branch --show-current');
-  await spawn(['push', 'origin', branchName.replace(/\n/gi, '').trim()]);
+  const branchName = await getBranchName();
+  await spawn(['push', 'origin', branchName]);
+}
+
+const pullCmd = async(args: string[]) => {
+  const branchName = args && args.length ? args[0] : await getBranchName();
+  await spawn(['pull', 'origin', branchName]);
 }
 
 const cmdSwitch = (args: string[]) => {
@@ -83,6 +93,9 @@ const cmdSwitch = (args: string[]) => {
       break;
     case 'push':
       pushCmd(args);
+      break;
+    case 'pull':
+      pullCmd(args);
       break;
   }
 };
